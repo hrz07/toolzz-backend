@@ -52,6 +52,13 @@ async function run() {
             res.send(products);
         })
 
+        app.get('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await itemCollection.findOne(query)
+            res.send(result)
+        })
+
         app.delete('/product/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
@@ -77,6 +84,33 @@ async function run() {
         app.get('/user', async (req, res) => {
             const result = await userCollection.find().toArray()
             res.send(result)
+            })
+
+        
+        app.put('/user/admin/:email', verifyJWT,  async (req, res) => {
+                const email = req.params.email;
+                const requester = req.decoded.email;
+                const requesterAccount = await userCollection.findOne({ email: requester })
+                
+                if (requesterAccount.role === 'admin') {
+                    const filter = { email: email }
+                    const updateDoc = {
+                        $set: {role:'admin'},
+                    }
+                    const result = await userCollection.updateOne(filter, updateDoc)
+                    res.send(result);
+                    console.log(result)
+                } else {
+                    res.status(403).send({message: 'forbidden'})
+                }
+               
+            })
+        
+            app.get('/admin/:email', async (req, res) => {
+                const email = req.params.email;
+                const user = await userCollection.findOne({ email: email })
+                const isAdmin = user.role === 'admin'
+                res.send({admin:isAdmin})
             })
 
 
