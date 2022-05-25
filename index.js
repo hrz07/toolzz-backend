@@ -39,6 +39,7 @@ async function run() {
         const itemCollection = client.db('toolzz').collection('items')
         const userCollection = client.db('toolzz').collection('users')
         const reviewCollection = client.db('toolzz').collection('reviews')
+        const orderCollection = client.db('toolzz').collection('orders')
 
 
         app.post('/addproduct', verifyJWT, async (req,res) => {
@@ -46,6 +47,26 @@ async function run() {
             const result = await itemCollection.insertOne(product);
             res.send(result);
         })
+
+        // order section
+        app.post('/order',  async (req,res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.send(result);
+        })
+
+        app.get('/order',  async (req,res) => {
+            const result = await orderCollection.find().toArray();
+            res.send(result);
+        })
+
+        app.get('/order/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const result = await orderCollection.find(query).toArray()
+            res.send(result)
+        })
+
 
         app.get('/product', async (req, res) => {
             const products = await itemCollection.find().toArray()
@@ -58,6 +79,8 @@ async function run() {
             const result = await itemCollection.findOne(query)
             res.send(result)
         })
+
+      
 
         app.delete('/product/:id', async (req, res) => {
             const id = req.params.id;
