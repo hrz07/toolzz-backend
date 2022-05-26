@@ -11,10 +11,11 @@ app.use(cors());
 app.use(express.json());
 
 
+// const uri = `mongodb+srv://${process.env.DB}:${process.env.PASS}@cluster0.fxktx.mongodb.net/?retryWrites=true&w=majority`;
+// const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
 const uri = `mongodb+srv://${process.env.DB}:${process.env.PASS}@cluster0.fxktx.mongodb.net/?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-
-
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const verifyJWT = (req,res,next) => {
     const authHeader = req.headers.authorization;
@@ -105,6 +106,42 @@ async function run() {
 
 
         })
+
+
+        // update info
+
+        app.put('/updateinfo/:email', async (req, res) => {
+            const email = req.params.email;
+            const data = req.body.data;
+            const name = data.name;
+            const phone = data.phone;
+            const address = data.address;
+           
+            const query = { email:email }
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    name: name,
+                    phone: phone,
+                    address: address
+                }
+            };
+            const result = await userCollection.updateOne(query, updatedDoc, options);
+            res.send(result);
+
+
+        })
+
+
+        // get user info
+        app.get('/userinfo/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const result = await userCollection.findOne(query)
+            res.send(result)
+        })
+
+
 
 
         // review section
