@@ -89,6 +89,23 @@ async function run() {
             res.send(result)
         })
 
+        app.put('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const updatedQuantity = req.body.quantity;
+           
+            const query = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    quantity: updatedQuantity,
+                }
+            };
+            const result = await itemCollection.updateOne(query, updatedDoc, options);
+            res.send(result);
+
+
+        })
+
 
         // review section
         app.post('/review', async(req,res)=>{
